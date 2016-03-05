@@ -1,0 +1,22 @@
+version: "2"
+services:
+  mirror:
+    build:
+      context: ./registry-proxy
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    volumes:
+      - /data:/var/lib/registry
+    restart: always
+
+  frontend:
+    image: konradkleine/docker-registry-frontend:v2
+    ports:
+      - 80:80
+    links:
+      - mirror:registry
+    environment:
+      ENV_DOCKER_REGISTRY_HOST: registry
+      ENV_DOCKER_REGISTRY_PORT: 5000
+    restart: always

@@ -1,0 +1,21 @@
+- hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: set default options for docker
+      lineinfile:
+        dest: /lib/systemd/system/docker.service
+        regexp: ^ExecStart=.*$
+        line: ExecStart=/usr/bin/docker daemon --insecure-registry localhost:5000 --registry-mirror http://localhost:5000
+        state: present
+      notify: reload daemons
+
+  handlers:
+    - name: reload daemons
+      shell: systemctl daemon-reload
+      notify: restart docker
+
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
